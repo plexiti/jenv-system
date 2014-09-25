@@ -1,0 +1,81 @@
+#!/bin/bash
+
+function default_jvm() {
+  echo `/usr/libexec/java_home -v ">" | sed -e 's/\(.*\)\/Home/\1/'`
+}
+
+function default_jvm_version() {
+  echo `/usr/libexec/PlistBuddy -c "Print :JavaVM:JVMVersion" $(default_jvm)/Info.plist | sed -e 's/>*\(.*\)/\1/'`
+}
+
+function jdk_use() {
+  if [ -z "$1" ]
+  then
+    JVM=`java -version 2>&1 | awk -F '"' '/version/ {print $2}'`
+  else
+    JVM=$1
+  fi
+  if [[ $(default_jvm_version) == $JVM* ]]
+  then
+    export JAVA_HOME=`/usr/libexec/java_home -v '>$JVM'`
+  else
+    export JAVA_HOME=`/usr/libexec/java_home -v $JVM`
+  fi
+  java -version
+}
+
+function jdk_locate() {
+  if [ -z "$1" ]
+  then
+    JVM=`java -version 2>&1 | awk -F '"' '/version/ {print $2}'`
+  else
+    JVM=$1
+  fi
+  if [[ $(default_jvm_version) == $JVM* ]]
+  then
+    /usr/libexec/java_home -v '>$JVM'
+  else
+    /usr/libexec/java_home -v $JVM
+  fi
+}
+
+function jdk_default() {
+  if [ -z "$1" ]
+  then
+    echo "Default java version set is" $(default_jvm_version)
+  else
+    if [[ $(default_jvm_version) == $1* ]]
+    then
+      DEFAULT_JVM=`/usr/libexec/java_home -v ">$1" | sed -e 's/\(.*\)\/Home/\1/'`
+    else
+      DEFAULT_JVM=`/usr/libexec/java_home -v $1 | sed -e 's/\(.*\)\/Home/\1/'`
+    fi
+    for JVM in `/usr/libexec/java_home -x | awk '/.*\/Contents/{print $1}' | sed -e 's/<string>\(.*\)\/Home<\/string>/\1/'`
+    do
+      JVM_VERSION=`/usr/libexec/PlistBuddy -c "Print :JavaVM:JVMVersion" $JVM/Info.plist | sed -e 's/>*\(.*\)/\1/'`
+      if [ $JVM == $DEFAULT_JVM ]
+      then
+        sudo /usr/libexec/PlistBuddy -c "Set :JavaVM:JVMVersion >$JVM_VERSION" $JVM/Info.plist
+        echo "Default java version set is" $JVM_VERSION
+      else
+        sudo /usr/libexec/PlistBuddy -c "Set :JavaVM:JVMVersion $JVM_VERSION" $JVM/Info.plist
+      fi
+    done
+  fi
+}
+
+if [ -z "$1" ]
+then 
+  java -version
+elif [ $1 == 'use' ]
+then
+  jdk_use $2
+elif [ $1 == "locate" ]
+then
+  jdk_locate $2
+elif [ $1 == 'default' ]
+then
+  jdk_default $2
+else
+  echo "Unknown command:" $1
+fi

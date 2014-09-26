@@ -64,6 +64,19 @@ function jdk_default() {
   fi
 }
 
+function jdk_init() {
+  if [ `cat ~/.profile | grep 'function jdk' | wc -l` != 1 ]
+  then
+    echo >> ~/.profile
+	echo "function jdk {" >> ~/.profile 
+	echo "  source \"$HOME/.jdk/jdk\" \$1 \$2" >> ~/.profile
+	echo "}">> ~/.profile
+	echo "jdk script initialised - please close this shell and continue in a new one"
+  else 
+	echo "jdk script has already been initialised"
+  fi
+}
+
 if [ -z "$1" ]
 then 
   java -version
@@ -76,6 +89,9 @@ then
 elif [ $1 == 'default' ]
 then
   jdk_default $2
+elif [ $1 == 'init' ]
+then
+  jdk_init 
 else
   echo "Unknown command:" $1
 fi

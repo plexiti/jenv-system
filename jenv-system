@@ -1,0 +1,41 @@
+#!/bin/bash
+
+function default_jvm() {
+  echo `/usr/libexec/java_home -v ">" | sed -e 's/\(.*\)\/Home/\1/'`
+}
+
+function default_jvm_version() {
+  echo `/usr/libexec/PlistBuddy -c "Print :JavaVM:JVMVersion" $(default_jvm)/Info.plist | sed -e 's/>*\(.*\)/\1/'`
+}
+
+function jenv-system() { 
+  if [ -z "$1" ]
+  then
+    echo "system java version set is" $(default_jvm_version)
+  else
+    if [[ $(default_jvm_version) == $1* ]]
+    then
+      DEFAULT_JVM=`/usr/libexec/java_home -v ">$1" | sed -e 's/\(.*\)\/Home/\1/'`
+    else
+      DEFAULT_JVM=`/usr/libexec/java_home -v $1 | sed -e 's/\(.*\)\/Home/\1/'`
+    fi
+    for JVM in `/usr/libexec/java_home -d64 -x | awk '/.*\/Contents/{print $1}' | sed -e 's/<string>\(.*\)\/Home<\/string>/\1/'`
+    do
+      JVM_VERSION=`/usr/libexec/PlistBuddy -c "Print :JavaVM:JVMVersion" $JVM/Info.plist | sed -e 's/>*\(.*\)/\1/'`
+      if [ $JVM == $DEFAULT_JVM ]
+      then
+        sudo /usr/libexec/PlistBuddy -c "Set :JavaVM:JVMVersion >$JVM_VERSION" $JVM/Info.plist
+        echo "system java version set is" $JVM_VERSION
+      else
+        sudo /usr/libexec/PlistBuddy -c "Set :JavaVM:JVMVersion $JVM_VERSION" $JVM/Info.plist
+      fi
+    done
+  fi
+}
+
+if [ `cat ~/.bash_profile | grep 'jenv-system' | wc -l` != 1 ]
+then
+  echo >> ~/.bash_profile
+  echo "[[ -s \"$HOME/.jenv-system/jenv-system\" ]] && source \"$HOME/.jenv-system/jenv-system\"" >> ~/.bash_profile
+  echo "Please open another shell in order to complete jenv-system initialisation."
+fi

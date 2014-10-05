@@ -50,7 +50,7 @@ function jdk_default() {
     else
       DEFAULT_JVM=`/usr/libexec/java_home -v $1 | sed -e 's/\(.*\)\/Home/\1/'`
     fi
-    for JVM in `/usr/libexec/java_home -x | awk '/.*\/Contents/{print $1}' | sed -e 's/<string>\(.*\)\/Home<\/string>/\1/'`
+    for JVM in `/usr/libexec/java_home -d64 -x | awk '/.*\/Contents/{print $1}' | sed -e 's/<string>\(.*\)\/Home<\/string>/\1/'`
     do
       JVM_VERSION=`/usr/libexec/PlistBuddy -c "Print :JavaVM:JVMVersion" $JVM/Info.plist | sed -e 's/>*\(.*\)/\1/'`
       if [ $JVM == $DEFAULT_JVM ]

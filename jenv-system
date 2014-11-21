@@ -33,7 +33,7 @@ function jenv-system() {
   fi
 }
 
-if [ `cat ~/.bash_profile | grep 'jenv-system' | wc -l` != 1 ]
+if [ `cat ~/.bash_profile | grep 'jenv-system' | wc -l` -lt 1 ]
 then
   echo >> ~/.bash_profile
   echo "[[ -s \"$HOME/.jenv-system/jenv-system\" ]] && source \"$HOME/.jenv-system/jenv-system\"" >> ~/.bash_profile

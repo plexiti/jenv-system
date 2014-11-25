@@ -2,6 +2,7 @@ function gvm_local {
   GRAILS_VERSION_LOCAL=`if [ -e application.properties ]; then cat application.properties | grep app.grails.version | cut -d "=" -f 2 2> /dev/null; fi`
   if [ ! -z "$GRAILS_VERSION_LOCAL" ] 
   then
+    echo -en "\033[1A"
     gvm use grails $GRAILS_VERSION_LOCAL
   fi
 }

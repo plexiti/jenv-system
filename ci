@@ -1,0 +1,10 @@
+function ci {
+  CI=https://plexiti-foss.ci.cloudbees.com/job/${PWD##*/}/
+  CI_EXISTS=`curl -sI $CI | grep "200 OK"`
+  if [ -z "$CI_EXISTS" ]
+  then
+    echo "Sorry, CI not configured for current project."
+  else
+    open $CI
+  fi
+}

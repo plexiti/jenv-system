@@ -1,0 +1,23 @@
+function hugo_version_local {
+  if [ -e .hugo-version ]; then
+    cat .hugo-version 2> /dev/null
+  fi
+}
+
+function hugo_version_global {
+  if [ -z "$HUGO_VERSION_GLOBAL" ]; then
+    HUGO_VERSION_GLOBAL=`hugo version | perl -nle 'print $& if m{\d{1,2}\.\d{1,2}}'`
+  fi
+  echo $HUGO_VERSION_GLOBAL
+}
+
+function hugo_use_local {
+  local=`hugo_version_local`
+  if [ ! -z "$local" ]; then
+    global=`hugo_version_global`
+    if [ "$global" != "$local" ]; then
+    	brew switch hugo $local > /dev/null
+      hugo version
+    fi
+  fi
+}

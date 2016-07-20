@@ -1,4 +1,4 @@
 function java_home {
   export JAVA_HOME=`jenv javahome | xargs readlink $1`
-  echo "Using java" `jenv version`
+  echo "Using" `groovy -version 2>/dev/null`
 }

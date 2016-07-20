@@ -1,0 +1,14 @@
+function springboot_version_local {
+  if [ -e build.gradle ]; then
+    cat build.gradle | grep "springBootVersion.*=" | cut -d "'" -f2 2> /dev/null
+  fi
+}
+
+function springboot_local {
+  SPRINGBOOT_VERSION_LOCAL=`springboot_version_local`
+  if [ ! -z "$SPRINGBOOT_VERSION_LOCAL" ]
+  then
+    echo -en "\033[1A"
+    gvm use springboot $SPRINGBOOT_VERSION_LOCAL
+  fi
+}

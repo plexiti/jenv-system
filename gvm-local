@@ -1,8 +1,22 @@
-function gvm_local {
-  GRAILS_VERSION_LOCAL=`if [ -e application.properties ]; then cat application.properties | grep app.grails.version | cut -d "=" -f 2 2> /dev/null; fi`
-  if [ ! -z "$GRAILS_VERSION_LOCAL" ] 
-  then
-    echo -en "\033[1A"
-    gvm use grails $GRAILS_VERSION_LOCAL
+function grails_version_local {
+  if [ -e grails-app ]; then
+    if [ -e application.properties ]; then 
+      cat application.properties | grep app.grails.version | cut -d "=" -f 2 2> /dev/null
+    elif [ -e gradle.properties ]; then 
+      cat gradle.properties | grep grailsVersion | cut -d "=" -f 2 2> /dev/null
+    elif [ -e ../gradle.properties ]; then
+      cat ../gradle.properties | grep grailsVersion | cut -d "=" -f 2 2> /dev/null
+    fi
+  fi
+}
+
+function grails_use_local {
+  GV=`grails_version_local`
+  if [ ! -z "$GV" ]; then
+    if [ "$GV" != "$GRAILS_VERSION_LOCAL" ]; then
+	echo -en "\033[1A"
+    	sdk use grails $GV
+        GRAILS_VERSION_LOCAL="$GV"
+    fi
   fi
 }
